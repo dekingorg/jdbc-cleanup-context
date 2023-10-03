@@ -47,7 +47,12 @@ public class JDBCCleanupContextListener implements ServletContextListener {
 
 		// Shutdown the MySQL threads to avoid memory leaks
 		try {
-			final Class<?> cleanupThreadClass = Class.forName("com.mysql.jdbc.AbandonedConnectionCleanupThread");
+			Class<?> cleanupThreadClass;
+			try {
+				cleanupThreadClass= Class.forName("com.mysql.jdbc.AbandonedConnectionCleanupThread");
+			}catch(ClassNotFoundException e) {
+				cleanupThreadClass= Class.forName("com.mysql.cj.jdbc.AbandonedConnectionCleanupThread");
+			}
 			final Method method = (cleanupThreadClass == null ? null : cleanupThreadClass.getMethod("shutdown"));
 			if (method != null) {
 				method.invoke(null);
